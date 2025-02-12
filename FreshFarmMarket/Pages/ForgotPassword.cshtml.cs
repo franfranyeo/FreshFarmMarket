@@ -41,9 +41,9 @@ namespace FreshFarmMarket.Pages
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                     // Send email with reset link
-                    var resetLink = Url.Page("/ResetPassword", null, new { token, email = user.Email }, Request.Scheme);
+                    var resetLink = Url.Page("/ResetPassword", null, new { token = Uri.EscapeDataString(token), email = Uri.EscapeDataString(user.Email) }, Request.Scheme);
                     // Use your email service to send the link
-                    var emailContent = $"Please reset your password by clicking here: <a href='{resetLink}'>link</a>";
+                    var emailContent = System.Net.WebUtility.HtmlEncode($"Please reset your password by clicking here: <a href='{resetLink}'>link</a>");
                     await _emailService.SendEmailAsync(user.Email, "Reset Password", emailContent);
                 }
                 TempData["FlashMessage.Type"] = "success";
