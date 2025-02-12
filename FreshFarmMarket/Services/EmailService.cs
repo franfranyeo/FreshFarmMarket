@@ -16,25 +16,33 @@ namespace FreshFarmMarket.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var mailMessage = new MailMessage
+            try
             {
-                From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName),
-                Subject = subject,
-                Body = message,
-                IsBodyHtml = true
-            };
-            mailMessage.To.Add(new MailAddress(email));
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName),
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(new MailAddress(email));
 
-            using (var client = new SmtpClient())
+                using (var client = new SmtpClient())
+                {
+                    client.Host = _smtpSettings.Server;
+                    client.Port = _smtpSettings.Port;
+                    client.EnableSsl = _smtpSettings.EnableSSL;
+                    client.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
+
+                    await client.SendMailAsync(mailMessage);
+                }
+            }
+            catch (Exception ex)
             {
-                client.Host = _smtpSettings.Server;
-                client.Port = _smtpSettings.Port;
-                client.EnableSsl = _smtpSettings.EnableSSL;
-                client.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
-
-                await client.SendMailAsync(mailMessage);
-            };
-
+                // Log the exception (implementation of logging depends on the logging framework being used)
+                // Example: _logger.LogError(ex, "Error sending email");
+                throw new InvalidOperationException("An error occurred while sending the email. Please try again later.");
+            }
         }
     }
 
