@@ -1,0 +1,19 @@
+﻿@page
+@model FreshFarmMarket.Pages.TwoFactorAuthModel
+@{
+}
+<h2>Two-Factor Authentication</h2>
+
+<p>Please enter the verification code sent to your device.</p>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="TFAModel.VerificationCode"></label>
+        <input asp-for="TFAModel.VerificationCode" class="form-control" />
+        <span asp-validation-for="TFAModel.VerificationCode" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Verify</button>
+</form>

@@ -1,0 +1,50 @@
+﻿@page
+@model IndexModel
+@using Microsoft.AspNetCore.Identity
+@using FreshFarmMarket.Model
+@inject SignInManager<User> SignInManager
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@{
+    if (SignInManager.IsSignedIn(User))
+    {
+        <div class="text-center">
+            <h1 class="display-4">Welcome</h1>
+            <p>All user information</p>
+        </div>
+        <div class="container">
+            <div class="row">
+
+                <div class="col-3">
+                    <div class="card">
+                        <img class="card-img-top" src="@Model.FetchUser.Photo" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">@Model.FetchUser.FullName</h5>
+                            <p class="card-text">About Me: @Model.FetchUser.AboutMe</p>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Gender: @Model.FetchUser.Gender</li>
+                                    <li class="list-group-item">Email: @Model.FetchUser.Email</li>
+                                    <li class="list-group-item">Credit Card Number: @Model.FetchUser.CreditCardNo</li>
+
+                                </ul>
+                            </div>
+                            <div>
+                                <a class="btn btn-primary" asp-page="/ChangePassword">Change password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    } else {
+        <div class="text-center">
+            <h1 class="display-4">Welcome</h1>
+            <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+        </div>
+    }
+
+}

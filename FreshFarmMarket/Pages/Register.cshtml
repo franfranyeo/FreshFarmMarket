@@ -1,0 +1,95 @@
+﻿@page
+@model FreshFarmMarket.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container">
+    <h2>Register for Fresh Farm Market</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <!-- Full Name -->
+        <div class="mb-3">
+            <label asp-for="RModel.FullName" class="form-label">Full Name</label>
+            <input asp-for="RModel.FullName" class="form-control" placeholder="Enter your full name" />
+            <span asp-validation-for="RModel.FullName" class="text-danger"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email Address</label>
+            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+
+        <!-- Password -->
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="At least 12 characters" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-3">
+            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <!-- Credit Card Number -->
+        <div class="mb-3">
+            <label asp-for="RModel.CreditCardNo" class="form-label">Credit Card Number</label>
+            <input asp-for="RModel.CreditCardNo" type="password" class="form-control" placeholder="Enter your card number" />
+            <span asp-validation-for="RModel.CreditCardNo" class="text-danger"></span>
+        </div>
+
+        <!-- Gender -->
+        <div class="mb-3">
+            <label asp-for="RModel.Gender" class="form-label">Gender</label>
+            <select asp-for="RModel.Gender" class="form-select">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="RModel.Gender" class="text-danger"></span>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="mb-3">
+            <label asp-for="RModel.MobileNo" class="form-label">Mobile Number</label>
+            <input asp-for="RModel.MobileNo" class="form-control" placeholder="e.g., +65 91234567" />
+            <span asp-validation-for="RModel.MobileNo" class="text-danger"></span>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="mb-3">
+            <label asp-for="RModel.DeliveryAddress" class="form-label">Delivery Address</label>
+            <textarea asp-for="RModel.DeliveryAddress" class="form-control" placeholder="Enter your full delivery address"></textarea>
+            <span asp-validation-for="RModel.DeliveryAddress" class="text-danger"></span>
+        </div>
+
+        <!-- Profile Photo -->
+        <div class="mb-3">
+            <label asp-for="ImageUpload" class="form-label">Profile Photo (JPG only, max 5MB)</label>
+            <input asp-for="ImageUpload" type="file" class="form-control" accept=".jpg" />
+            <span asp-validation-for="ImageUpload" class="text-danger"></span>
+        </div>
+
+        <!-- About Me -->
+        <div class="mb-3">
+            <label asp-for="RModel.AboutMe" class="form-label">About Me</label>
+            <textarea asp-for="RModel.AboutMe" class="form-control" placeholder="Tell us something about yourself..."></textarea>
+            <span asp-validation-for="RModel.AboutMe" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
