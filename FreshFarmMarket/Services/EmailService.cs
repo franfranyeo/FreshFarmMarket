@@ -39,8 +39,6 @@ namespace FreshFarmMarket.Services
             }
             catch (Exception ex)
             {
-                // Log the exception (implementation of logging depends on the logging framework being used)
-                // Example: _logger.LogError(ex, "Error sending email");
                 throw new InvalidOperationException("An error occurred while sending the email. Please try again later.");
             }
         }

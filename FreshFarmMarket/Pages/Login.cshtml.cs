@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FreshFarmMarket.Model;
+using FreshFarmMarket.Services;
 
 namespace FreshFarmMarket.Pages
 {
@@ -11,23 +12,28 @@ namespace FreshFarmMarket.Pages
         [BindProperty]
         public Login LModel { get; set; }
 
-        private readonly SignInManager<User> signInManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
-        //private readonly AuditLogServices _auditLogService;
-        //private readonly SmsService _smsService;
+        private readonly LogService _logService;
+        private readonly SmsService _smsService;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly GoogleCaptchaService _googleCaptchaService;
 
         public LoginModel(
             SignInManager<User> signInManager,
-            UserManager<User> userManager
-            //AuditLogServices auditLogService, 
-            //SmsService smsService, 
-            //GooglereCaptchaService _googleCaptchaService
+            UserManager<User> userManager,
+            LogService logService,
+            SmsService smsService,
+            GoogleCaptchaService googleCaptchaService,
+            RoleManager<IdentityRole> roleManager
             )
         {
-            this.signInManager = signInManager;
+            _signInManager = signInManager;
             _userManager = userManager;
-            //_auditLogService = auditLogService;
-            //_smsService = smsService;
+            _roleManager = roleManager;
+            _logService = logService;
+            _smsService = smsService;
+            _googleCaptchaService = googleCaptchaService;
         }
         public void OnGet()
         {
@@ -36,13 +42,13 @@ namespace FreshFarmMarket.Pages
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync()
         {
-            // Google recaptcha
-            //GoogleResponse _GooglereCaptcha = await _GooglereCaptchaService.VerifyCaptcha(LModel.Token);
-            //if (!_GooglereCaptcha.success && _GooglereCaptcha.score <= 0.5)
-            //{
-            //	ModelState.AddModelError("", "You are not human!");
-            //	return Page();
-            //}
+            var recaptchaToken = Request.Form["recaptchaToken"];
+            GCaptchaResponse _GooglereCaptcha = await _googleCaptchaService.VerifyToken(recaptchaToken);
+            if (!_GooglereCaptcha.success && _GooglereCaptcha.score <= 0.5)
+            {
+                ModelState.AddModelError("", "You are not human!");
+                return Page();
+            }
 
             if (!ModelState.IsValid)
             {
@@ -64,7 +70,7 @@ namespace FreshFarmMarket.Pages
                     return Page();
                 }
 
-                var result = await signInManager.PasswordSignInAsync(LModel.Email, LModel.Password, LModel.RememberMe, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(LModel.Email, LModel.Password, LModel.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {// Check maximum password age
                     if (user.LastPasswordChange.HasValue &&
@@ -76,7 +82,7 @@ namespace FreshFarmMarket.Pages
 
                     user.IsLoggedIn = true;
                     await _userManager.UpdateAsync(user);
-                    //await _auditLogService.RecordLogs(Actions.Login, LModel.Email);
+                    await _logService.RecordLogs("Login", LModel.Email);
                     TempData["FlashMessage.Type"] = "success";
                     TempData["FlashMessage.Text"] = "You have successfully logged in.";
 

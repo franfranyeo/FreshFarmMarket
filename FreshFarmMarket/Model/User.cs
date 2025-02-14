@@ -29,6 +29,9 @@ namespace FreshFarmMarket.Model
 
         [MaxLength(150)]
         public string? Photo { get; set; }
+
+        public bool TwoFactorEnabled { get; set; }
+
         [Required]
         [MaxLength(150, ErrorMessage = "About Me cannot be longer than 150 characters")]
         public string AboutMe { get; set; }

@@ -22,17 +22,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // Email Service
+builder.Services.AddScoped<EmailService>();
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-builder.Services.AddTransient<EmailService>();
 
 // Sms Service
-builder.Services.AddTransient<SmsService>();
+builder.Services.AddScoped<SmsService>();
+
+// Log Service
+builder.Services.AddScoped<LogService>();
+
+// Google reCaptcha
+builder.Services.Configure<GCaptchaConfig>(builder.Configuration.GetSection("GoogleReCaptcha"));
+builder.Services.AddTransient(typeof(GoogleCaptchaService));
 
 // Add database context
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnectionString"))
 );
 
+builder.Services.AddDbContext<AuthDbContext>();
 // Configure Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -47,7 +55,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddEntityFrameworkStores<AuthDbContext>()
 .AddDefaultTokenProviders();
 
-// Secure CreaditCardNumber
+// Secure CreditCardNo
 builder.Services.AddDataProtection();
 
 // Session Management
@@ -78,6 +86,13 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddRazorPages();
 
+var roleManager = builder.Services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
+// Ensure the "Admin" role exists
+if (!await roleManager.RoleExistsAsync("Admin"))
+{
+    await roleManager.CreateAsync(new IdentityRole("Admin"));
+}
+
 var app = builder.Build();
 app.UseSession();
 
@@ -88,30 +103,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Custom error messages
-app.UseStatusCodePages(context =>
-{
-    context.HttpContext.Response.ContentType = "text/plain";
-
-    switch (context.HttpContext.Response.StatusCode)
-    {
-        case 404:
-            context.HttpContext.Response.Redirect("/Error/Error404");
-            break;
-        case 403:
-            context.HttpContext.Response.Redirect("/Error/Error403");
-            break;
-        case 400:
-            context.HttpContext.Response.Redirect("/Error/Error400");
-            break;
-        default:
-            context.HttpContext.Response.Redirect("/Error/Error404");
-            break;
-    }
-
-    return Task.CompletedTask;
-
-});
+app.UseStatusCodePagesWithRedirects("/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

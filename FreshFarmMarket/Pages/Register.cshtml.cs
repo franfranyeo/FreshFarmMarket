@@ -108,22 +108,37 @@ namespace FreshFarmMarket.Pages
                 UserName = Email,
                 CreditCardNo = protectedCreditCardNo,
                 Gender = RModel.Gender,
-                MobileNo = "+65 " + RModel.MobileNo,
+                MobileNo = "+65" + RModel.MobileNo,
                 DeliveryAddress = RModel.DeliveryAddress,
                 AboutMe = RModel.AboutMe,
                 Photo = photoURL,
+                TwoFactorEnabled = true,
             };
 
             var result = await _userManager.CreateAsync(user, Password);
 
             if (result.Succeeded)
             {
+                var currentUser = await _userManager.FindByEmailAsync(Email);
+                if (currentUser != null) {
+                    currentUser.EmailConfirmed = true;
+                    currentUser.PhoneNumberConfirmed = true;
+                    await _userManager.UpdateAsync(currentUser);
+                }
+
+                if (Email == "admin1@freshfarmmarket.com")
+                {
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                }
+
                 using var fileStream = new FileStream(filePath, FileMode.Create);
                 await ImageUpload.CopyToAsync(fileStream);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 TempData["FlashMessage.Type"] = "success";
                 TempData["FlashMessage.Text"] = "You have successfully registered for an account";
                 HttpContext.Session.SetString("SessionEmail", Email);
+                await _userManager.SetPhoneNumberAsync(user, user.MobileNo);
+                await _userManager.SetTwoFactorEnabledAsync(user, true);
                 return RedirectToPage("/Index");
             }
 

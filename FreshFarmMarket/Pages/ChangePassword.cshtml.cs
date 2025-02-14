@@ -83,7 +83,7 @@ namespace FreshFarmMarket.Pages
             await _userManager.UpdateAsync(user);
 
             TempData["FlashMessage.Type"] = "success";
-            TempData["FlashMessage.Text"] = "Password reset link has been sent to your email if it exists.";
+            TempData["FlashMessage.Text"] = "Password has been changed successfully.";
 
             return RedirectToPage("Index");
         }

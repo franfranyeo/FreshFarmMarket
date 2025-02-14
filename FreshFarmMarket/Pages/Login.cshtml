@@ -1,7 +1,8 @@
 ﻿@page
 @model FreshFarmMarket.Pages.LoginModel
-
 @using Microsoft.Extensions.Options
+@using FreshFarmMarket.Model;
+@inject IOptions<GCaptchaConfig> GCaptchaConfig;
 
 @{
 	ViewData["Title"] = "Login";
@@ -34,6 +35,7 @@
 				<div class="mb-3">
 					<button type="submit" class="btn btn-primary">Login</button>
 				</div>
+				<input type="hidden" id="recaptchaToken" name="recaptchaToken" />
 				<div class="mb-3">
 					<a asp-page="/ForgotPassword">Forgot password?</a>
 				</div>
@@ -42,4 +44,14 @@
 		</div>
 	</div>
 </div>
+
+<script src="https://www.google.com/recaptcha/api.js?render=@GCaptchaConfig.Value.SiteKey"></script>
+
+<script>
+		grecaptcha.ready(function() {
+				grecaptcha.execute('@GCaptchaConfig.Value.SiteKey', {action: 'login'}).then(function(token) {
+					document.getElementById("recaptchaToken").value = token
+				});
+		});
+</script>
 

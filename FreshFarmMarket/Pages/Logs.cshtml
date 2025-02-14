@@ -1,0 +1,26 @@
+﻿@page
+@model LogsModel
+@{
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Time of Creation</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.Loglist)
+        {
+            <tr>
+                <td>@log.Id</td>
+                <td>@log.User</td>
+                <td>@log.Action</td>
+                <td>@log.CreateTime</td>
+            </tr>
+        }
+    </tbody>
+</table>
