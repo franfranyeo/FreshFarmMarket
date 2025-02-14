@@ -33,14 +33,11 @@ builder.Services.AddScoped<LogService>();
 
 // Google reCaptcha
 builder.Services.Configure<GCaptchaConfig>(builder.Configuration.GetSection("GoogleReCaptcha"));
-builder.Services.AddTransient(typeof(GoogleCaptchaService));
+builder.Services.AddTransient<GoogleCaptchaService>();
 
 // Add database context
-builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnectionString"))
-);
-
 builder.Services.AddDbContext<AuthDbContext>();
+
 // Configure Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -85,14 +82,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 builder.Services.AddRazorPages();
-
-var roleManager = builder.Services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
-// Ensure the "Admin" role exists
-if (!await roleManager.RoleExistsAsync("Admin"))
-{
-    await roleManager.CreateAsync(new IdentityRole("Admin"));
-}
-
 var app = builder.Build();
 app.UseSession();
 
@@ -111,4 +100,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
+
+// Add this role initialization code
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+}
+
 app.Run();

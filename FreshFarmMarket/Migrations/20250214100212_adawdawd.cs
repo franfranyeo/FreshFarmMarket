@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FreshFarmMarket.Migrations
 {
     /// <inheritdoc />
-    public partial class Final : Migration
+    public partial class adawdawd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,7 @@ namespace FreshFarmMarket.Migrations
                     MobileNo = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
                     DeliveryAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Photo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     AboutMe = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     IsLoggedIn = table.Column<bool>(type: "bit", nullable: false),
                     LastPasswordChange = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -51,7 +52,6 @@ namespace FreshFarmMarket.Migrations
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false)
