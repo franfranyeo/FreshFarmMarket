@@ -4,11 +4,21 @@ using Twilio.Types;
 
 namespace FreshFarmMarket.Services
 {
-    public class SmsService(IConfiguration configuration)
+    public class SmsService
     {
-        private readonly string _accountSid = configuration["Twilio:AccountSid"];
-        private readonly string _authToken = configuration["Twilio:AuthToken"];
-        private readonly string _twilioNumber = configuration["Twilio:PhoneNumber"];
+        private readonly string _accountSid;
+        private readonly string _authToken;
+        private readonly string _twilioNumber;
+
+        public SmsService(IConfiguration configuration)
+        {
+            _accountSid = configuration["Twilio:AccountSid"]
+                ?? throw new ArgumentNullException("Twilio:AccountSid configuration is missing");
+            _authToken = configuration["Twilio:AuthToken"]
+                ?? throw new ArgumentNullException("Twilio:AuthToken configuration is missing");
+            _twilioNumber = configuration["Twilio:PhoneNumber"]
+                ?? throw new ArgumentNullException("Twilio:PhoneNumber configuration is missing");
+        }
 
         public Task SendSms(string toPhoneNumber, string otp)
         {

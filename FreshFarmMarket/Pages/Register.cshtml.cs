@@ -2,7 +2,9 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 using FreshFarmMarket.Model;
+using FreshFarmMarket.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,17 +19,20 @@ namespace FreshFarmMarket.Pages
         private readonly SignInManager<User> _signInManager;
         private IWebHostEnvironment _environment;
         private readonly IDataProtector _protector;
+        private readonly LogService _logService;
 
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IDataProtectionProvider provider,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+                LogService logService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _protector = provider.CreateProtector("CreditCardProtector");
             _environment = environment;
+            _logService = logService;
         }
 
         [BindProperty]
@@ -57,7 +62,7 @@ namespace FreshFarmMarket.Pages
         public string ConfirmPassword { get; set; }
 
         [BindProperty]
-        [Required]
+        [Required(ErrorMessage = "Profile Photo is required")]
         public IFormFile? ImageUpload { get; set; }
 
         [ValidateAntiForgeryToken]
@@ -101,6 +106,11 @@ namespace FreshFarmMarket.Pages
 
             var protectedCreditCardNo = _protector.Protect(RModel.CreditCardNo);
 
+
+            RModel.DeliveryAddress = HttpUtility.HtmlEncode(RModel.DeliveryAddress);
+            RModel.AboutMe = HttpUtility.HtmlEncode(RModel.AboutMe);
+
+
             var user = new User
             {
                 FullName = RModel.FullName,
@@ -112,7 +122,6 @@ namespace FreshFarmMarket.Pages
                 DeliveryAddress = RModel.DeliveryAddress,
                 AboutMe = RModel.AboutMe,
                 Photo = photoURL,
-                TwoFactorEnabled = true,
             };
 
             var result = await _userManager.CreateAsync(user, Password);
@@ -126,7 +135,7 @@ namespace FreshFarmMarket.Pages
                     await _userManager.UpdateAsync(currentUser);
                 }
 
-                if (Email == "admin1@freshfarmmarket.com")
+                if (Email == "admin@freshfarmmarket.com")
                 {
                     await _userManager.AddToRoleAsync(user, "Admin");
                 }
@@ -134,6 +143,7 @@ namespace FreshFarmMarket.Pages
                 using var fileStream = new FileStream(filePath, FileMode.Create);
                 await ImageUpload.CopyToAsync(fileStream);
                 await _signInManager.SignInAsync(user, isPersistent: false);
+                await _logService.RecordLogs("Login", Email);
                 TempData["FlashMessage.Type"] = "success";
                 TempData["FlashMessage.Text"] = "You have successfully registered for an account";
                 HttpContext.Session.SetString("SessionEmail", Email);

@@ -5,7 +5,7 @@
 namespace FreshFarmMarket.Migrations
 {
     /// <inheritdoc />
-    public partial class adawdawdawdaw : Migration
+    public partial class InitialCreate2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

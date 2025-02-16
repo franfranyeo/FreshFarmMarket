@@ -11,13 +11,15 @@ namespace FreshFarmMarket.Pages
         private readonly SignInManager<User> _signInManager;
         private readonly SmsService _smsService;
         private readonly UserManager<User> _userManager;
+        private readonly LogService _logService;
 
 
-        public TwoFactorAuthModel(SignInManager<User> signInManager, SmsService smsService, UserManager<User> userManager)
+        public TwoFactorAuthModel(SignInManager<User> signInManager, SmsService smsService, UserManager<User> userManager, LogService logService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _smsService = smsService;
+            _logService = logService;
         }
 
         [BindProperty]
@@ -28,7 +30,7 @@ namespace FreshFarmMarket.Pages
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
             var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Phone");
-            await _smsService.SendSms(user.PhoneNumber, token);
+            await _smsService.SendSms(user.MobileNo, token);
 
             return Page();
         }
@@ -45,6 +47,11 @@ namespace FreshFarmMarket.Pages
 
             if (result.Succeeded)
             {
+                user.IsLoggedIn = true;
+                await _userManager.UpdateAsync(user);
+
+                await _logService.RecordLogs("Login (2FA)", user.Email);
+
                 TempData["FlashMessage.Type"] = "success";
                 TempData["FlashMessage.Text"] = "You have successfully logged in.";
                 HttpContext.Session.SetString("SessionEmail", user.Email);

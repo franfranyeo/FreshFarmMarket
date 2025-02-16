@@ -37,6 +37,46 @@ namespace FreshFarmMarket.Services
                 });
             }
 
+            else if (action == "Change Password")
+            {
+                await _context.Logs.AddAsync(new Log()
+                {
+                    Action = "Change Password",
+                    Description = string.Format("User {0} has changed their password.", email),
+                    User = email,
+                });
+            }
+
+            else if (action == "Password Reset")
+            {
+                await _context.Logs.AddAsync(new Log()
+                {
+                    Action = "Password Reset",
+                    Description = string.Format("User {0} has reset their password.", email),
+                    User = email,
+                });
+            }
+
+            else if (action == "Account Lockout")
+            {
+                await _context.Logs.AddAsync(new Log()
+                {
+                    Action = "Account Lockout",
+                    Description = string.Format("User {0} has been locked out.", email),
+                    User = email,
+                });
+            }
+
+            else if (action == "Login (2FA)")
+            {
+                await _context.Logs.AddAsync(new Log()
+                {
+                    Action = "Login (2FA)",
+                    Description = string.Format("User {0} has logged in using 2FA.", email),
+                    User = email,
+                });
+            }
+
             await _context.SaveChangesAsync();
         }
     }

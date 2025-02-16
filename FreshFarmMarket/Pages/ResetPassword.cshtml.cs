@@ -12,10 +12,12 @@ namespace FreshFarmMarket.Pages
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<User> _userManager;
+        private readonly LogService _logService;
 
-        public ResetPasswordModel(UserManager<User> userManager)
+        public ResetPasswordModel(UserManager<User> userManager, LogService logService)
         {
             _userManager = userManager;
+            _logService = logService;
         }
 
         [BindProperty]
@@ -52,6 +54,8 @@ namespace FreshFarmMarket.Pages
                 IdentityResult result = await _userManager.ResetPasswordAsync(user, Token, Password);
                 if (result.Succeeded)
                 {
+                    await _logService.RecordLogs("Password Reset", user.Email);
+
                     TempData["FlashMessage.Type"] = "success";
                     TempData["FlashMessage.Text"] = "Your password has successfully been resetted.";
                     return RedirectToPage("Login");

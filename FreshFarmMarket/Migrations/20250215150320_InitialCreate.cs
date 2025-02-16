@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FreshFarmMarket.Migrations
 {
     /// <inheritdoc />
-    public partial class adawdawd : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,7 @@ namespace FreshFarmMarket.Migrations
                     CreditCardNo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     MobileNo = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    DeliveryAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeliveryAddress = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Photo = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     AboutMe = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),

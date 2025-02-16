@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshFarmMarket.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250214100212_adawdawd")]
-    partial class adawdawd
+    [Migration("20250215151205_InitialCreate4")]
+    partial class InitialCreate4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,7 +95,8 @@ namespace FreshFarmMarket.Migrations
 
                     b.Property<string>("DeliveryAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)

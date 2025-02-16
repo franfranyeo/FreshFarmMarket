@@ -11,12 +11,14 @@ namespace FreshFarmMarket.Pages
         private readonly UserManager<User> _userManager;
         private readonly IDataProtector _protector;
         private readonly IHttpContextAccessor _http;
+        private readonly SignInManager<User> _signInManager;
 
-        public IndexModel(IHttpContextAccessor http, UserManager<User> userManager, IDataProtectionProvider provider)
+        public IndexModel(IHttpContextAccessor http, UserManager<User> userManager, IDataProtectionProvider provider, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _protector = provider.CreateProtector("CreditCardProtector");
             _http = http;
+            _signInManager = signInManager;
         }
 
         public User FetchUser { get; set; } = new User();
@@ -26,11 +28,23 @@ namespace FreshFarmMarket.Pages
         public async Task<IActionResult> OnGetAsync()
         {
             Username = HttpContext.Session.GetString("SessionEmail");
-            if (Username == null)
+            //if (Username == null)
+            //{
+            //    return RedirectToPage("Login");
+            //}
+
+            if (string.IsNullOrEmpty(Username))
             {
-                return Page();
+                await _signInManager.SignOutAsync();
+                HttpContext.Session.Clear();
+                return RedirectToPage("Login");
             }
+
             var user = await _userManager.FindByEmailAsync(Username);
+            if (user == null)
+            {
+                return RedirectToPage("Login");
+            }
             var decryptedCreditCardNo = _protector.Unprotect(user.CreditCardNo);
             user.CreditCardNo = decryptedCreditCardNo;
             FetchUser = user;

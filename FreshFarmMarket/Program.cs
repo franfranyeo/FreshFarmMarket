@@ -19,6 +19,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Force Secure attribute
     options.Cookie.SameSite = SameSiteMode.Strict; // Prevent CSRF attacks
     options.ExpireTimeSpan = TimeSpan.FromMinutes(15); // Session timeout
+    options.SlidingExpiration = false; // Prevent extending session
 });
 
 // Email Service
@@ -36,7 +37,8 @@ builder.Services.Configure<GCaptchaConfig>(builder.Configuration.GetSection("Goo
 builder.Services.AddTransient<GoogleCaptchaService>();
 
 // Add database context
-builder.Services.AddDbContext<AuthDbContext>();
+builder.Services.AddDbContext<AuthDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnectionString")));
 
 // Configure Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -60,7 +62,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDistributedMemoryCache(); //save session in memory
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(15);
+    options.IdleTimeout = TimeSpan.FromMinutes(15); // session timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 }); ;
@@ -83,7 +85,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddRazorPages();
 var app = builder.Build();
-app.UseSession();
 
 
 if (!app.Environment.IsDevelopment())
@@ -97,6 +98,9 @@ app.UseStatusCodePagesWithRedirects("/{0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();

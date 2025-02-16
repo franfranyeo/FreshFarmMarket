@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FreshFarmMarket.Model;
+using FreshFarmMarket.Services;
 
 namespace FreshFarmMarket.Pages
 {
     public class ChangePasswordModel : PageModel
     {
         private readonly UserManager<User> _userManager;
+        private readonly LogService _logService;
 
-        public ChangePasswordModel(UserManager<User> userManager)
+        public ChangePasswordModel(UserManager<User> userManager, LogService logService)
         {
             _userManager = userManager;
+            _logService = logService;
         }
 
         [BindProperty]
@@ -34,6 +37,16 @@ namespace FreshFarmMarket.Pages
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+
+            // Prevent changing password to the same current password
+            var passwordHasher = _userManager.PasswordHasher;
+            var currentPasswordCheck = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, ChangePassModel.NewPassword);
+            if (currentPasswordCheck == PasswordVerificationResult.Success)
+            {
+                ModelState.AddModelError("", "You cannot change your password to the same current password.");
+                return Page();
+            }
+
             // Minimum password age check (e.g., 60 minutes)
             if (user.LastPasswordChange.HasValue && DateTime.Now < user.LastPasswordChange.Value.AddMinutes(60))
             {
@@ -41,7 +54,6 @@ namespace FreshFarmMarket.Pages
                 return Page();
             }
 
-            var passwordHasher = _userManager.PasswordHasher;
 
             bool isPasswordReused = false;
             if (user.PreviousPWHash != null)
@@ -67,6 +79,9 @@ namespace FreshFarmMarket.Pages
                 return Page();
             }
 
+            user.PreviousPWHash2 = user.PreviousPWHash;
+            user.PreviousPWHash = user.PasswordHash;
+
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, ChangePassModel.OldPassword, ChangePassModel.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
@@ -77,8 +92,8 @@ namespace FreshFarmMarket.Pages
                 return Page();
             }
 
-            user.PreviousPWHash2 = user.PreviousPWHash;
-            user.PreviousPWHash = user.PasswordHash;
+            await _logService.RecordLogs("Change Password", user.Email);
+            
             user.LastPasswordChange = DateTime.Now;
             await _userManager.UpdateAsync(user);
 
